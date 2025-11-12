@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # 主应用服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-travel-planner
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - FRONTEND_URL=http://localhost:3000
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai-travel-planner.rule=Host(`travel-planner.example.com`)"
+      - "traefik.http.services.ai-travel-planner.loadbalancer.server.port=5000"
+
+  # 开发环境服务
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ai-travel-planner-dev
+    ports:
+      - "5000:5000"
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - FRONTEND_URL=http://localhost:3000
+    env_file:
+      - .env.dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/backend/node_modules
+      - /app/frontend/node_modules
+    restart: unless-stopped
+    command: npm run dev
+
+  # PostgreSQL数据库（可选，如果不想使用Supabase）
+  postgres:
+    image: postgres:15-alpine
+    container_name: travel-planner-db
+    environment:
+      - POSTGRES_DB=travel_planner
+      - POSTGRES_USER=travel_user
+      - POSTGRES_PASSWORD=travel_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travel_user -d travel_planner"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis缓存（可选）
+  redis:
+    image: redis:7-alpine
+    container_name: travel-planner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # Nginx反向代理（生产环境）
+  nginx:
+    image: nginx:alpine
+    container_name: travel-planner-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./ssl:/etc/nginx/ssl
+      - ./frontend/dist:/usr/share/nginx/html
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: travel-planner-network

@@ -1,0 +1,115 @@
+name: Build and Push Docker Image to Alibaba Cloud
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:  # 允许手动触发
+    inputs:
+      version:
+        description: 'Docker镜像版本'
+        required: true
+        default: 'latest'
+
+env:
+  REGISTRY: registry.cn-hangzhou.aliyuncs.com
+  NAMESPACE: ai-travel-planner
+  IMAGE_NAME: ai-travel-planner
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Alibaba Cloud Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
+        password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
+
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate deployment info
+      run: |
+        echo "🚀 Docker镜像构建和推送完成！"
+        echo "镜像地址：${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}"
+        echo "可用标签：${{ steps.meta.outputs.tags }}"
+        echo ""
+        echo "📥 下载镜像命令："
+        echo "docker pull ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:latest"
+        echo ""
+        echo "🏃 运行容器命令："
+        echo "docker run -d -p 80:5000 --name ai-travel-planner ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:latest"
+
+    - name: Create release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          README_DOCKER.md
+          run-docker.sh
+          run-docker.bat
+          DOCKER_RUN_GUIDE.md
+        body: |
+          # 🚀 AI旅行规划器 Docker镜像发布
+
+          ## 镜像信息
+          - **镜像地址**: `${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:latest`
+          - **构建时间**: ${{ github.event.head_commit.timestamp }}
+          - **Git提交**: ${{ github.sha }}
+
+          ## 快速开始
+          1. 下载并运行一键脚本：
+          ```bash
+          # Linux/macOS
+          ./run-docker.sh
+
+          # Windows
+          run-docker.bat
+          ```
+
+          2. 配置API密钥后访问：http://localhost
+
+          ## 功能特性
+          - ✅ 智能语音行程规划
+          - ✅ 实时地图导航
+          - ✅ 费用预算管理
+          - ✅ 用户认证系统
+          - ✅ 云端数据同步
+
+    - name: Update Docker Hub mirror
+      if: success()
+      run: |
+        # 可选：同时推送到Docker Hub作为备份
+        echo "如需推送到Docker Hub，请配置DOCKERHUB_USERNAME和DOCKERHUB_TOKEN secrets"

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI旅行规划器 - 演示版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .feature-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .feature-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .demo-area {
+            background: #fff;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .demo-area h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .voice-btn {
+            background: linear-gradient(135deg, #e74c3c, #e67e22);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .voice-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .voice-btn.recording {
+            background: linear-gradient(135deg, #c0392b, #d35400);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .output-area {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 100px;
+            text-align: left;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .status {
+            padding: 15px;
+            background: #2ecc71;
+            color: white;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .status.error {
+            background: #e74c3c;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI旅行规划器</h1>
+            <p>智能语音识别 • AI行程规划 • 实时地图服务 • 预算管理</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="feature-section">
+                <h3>🎯 核心功能</h3>
+                <ul class="feature-list">
+                    <li>智能语音输入旅行需求</li>
+                    <li>AI自动生成个性化行程</li>
+                    <li>实时地图导航和POI搜索</li>
+                    <li>智能预算分析和费用管理</li>
+                    <li>多设备云端数据同步</li>
+                    <li>用户注册和行程管理</li>
+                </ul>
+                
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <strong>前端</strong><br>
+                        React + TypeScript
+                    </div>
+                    <div class="tech-item">
+                        <strong>后端</strong><br>
+                        Node.js + Express
+                    </div>
+                    <div class="tech-item">
+                        <strong>数据库</strong><br>
+                        Supabase
+                    </div>
+                    <div class="tech-item">
+                        <strong>AI服务</strong><br>
+                        阿里云百炼
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-area">
+                <h3>🎤 语音输入演示</h3>
+                <button class="voice-btn" id="voiceBtn">
+                    🎤 点击开始语音输入
+                </button>
+                
+                <div class="output-area" id="outputArea">
+                    <p><strong>示例语音输入：</strong></p>
+                    <p>"我想去日本东京，5天行程，预算8000元，喜欢美食和购物，两个人出行"</p>
+                    <br>
+                    <p><strong>AI生成的行程计划：</strong></p>
+                    <p>• Day 1: 抵达东京，入住酒店，浅草寺游览</p>
+                    <p>• Day 2: 东京迪士尼乐园一日游</p>
+                    <p>• Day 3: 涩谷、原宿购物，体验当地美食</p>
+                    <p>• Day 4: 富士山一日游</p>
+                    <p>• Day 5: 银座购物，返回</p>
+                    <br>
+                    <p><strong>预算分析：</strong></p>
+                    <p>机票：3000元 | 住宿：2000元 | 餐饮：1500元 | 景点：1000元 | 购物：500元</p>
+                </div>
+                
+                <div class="status" id="status">
+                    ✅ 项目代码已完整实现，包含所有核心功能
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📁 GitHub仓库包含完整源代码 | 🐳 Docker镜像可直接运行</p>
+            <p>🔧 技术栈：React + Node.js + Supabase + 科大讯飞语音 + 高德地图 + 阿里云百炼AI</p>
+        </div>
+    </div>
+
+    <script>
+        const voiceBtn = document.getElementById('voiceBtn');
+        const outputArea = document.getElementById('outputArea');
+        const status = document.getElementById('status');
+        
+        let isRecording = false;
+        
+        voiceBtn.addEventListener('click', function() {
+            if (!isRecording) {
+                // 开始录音
+                isRecording = true;
+                voiceBtn.classList.add('recording');
+                voiceBtn.innerHTML = '🔴 正在录音... 点击结束';
+                status.textContent = '🎤 语音识别中... 模拟科大讯飞API处理';
+                status.className = 'status';
+                
+                // 模拟语音识别过程
+                setTimeout(() => {
+                    outputArea.innerHTML = `
+                        <p><strong>识别到的语音内容：</strong></p>
+                        <p>"我想去日本东京，5天行程，预算8000元，喜欢美食和购物，两个人出行"</p>
+                        <br>
+                        <p><strong>AI正在生成行程计划...</strong></p>
+                    `;
+                }, 1000);
+                
+                // 模拟AI处理
+                setTimeout(() => {
+                    outputArea.innerHTML = `
+                        <p><strong>识别到的语音内容：</strong></p>
+                        <p>"我想去日本东京，5天行程，预算8000元，喜欢美食和购物，两个人出行"</p>
+                        <br>
+                        <p><strong>AI生成的行程计划：</strong></p>
+                        <p>• Day 1: 抵达东京，入住酒店，浅草寺游览</p>
+                        <p>• Day 2: 东京迪士尼乐园一日游</p>
+                        <p>• Day 3: 涩谷、原宿购物，体验当地美食</p>
+                        <p>• Day 4: 富士山一日游</p>
+                        <p>• Day 5: 银座购物，返回</p>
+                        <br>
+                        <p><strong>预算分析：</strong></p>
+                        <p>机票：3000元 | 住宿：2000元 | 餐饮：1500元 | 景点：1000元 | 购物：500元</p>
+                        <br>
+                        <p><strong>地图服务：</strong></p>
+                        <p>📍 已为您规划东京主要景点路线</p>
+                    `;
+                    status.textContent = '✅ 行程规划完成！已保存到云端';
+                }, 3000);
+                
+            } else {
+                // 结束录音
+                isRecording = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '🎤 点击开始语音输入';
+            }
+        });
+        
+        // 模拟页面加载完成
+        window.addEventListener('load', function() {
+            status.textContent = '🚀 演示版本加载完成！真实版本需要Node.js环境运行';
+        });
+    </script>
+</body>
+</html>
